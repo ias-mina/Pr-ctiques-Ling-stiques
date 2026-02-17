@@ -42,7 +42,56 @@
         }
 
         .header-content {
-            padding: 1.25rem 1rem;
+            padding: 1.25rem 1rem 0.75rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 0.5rem 1rem;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            background: transparent;
+            color: var(--text-secondary);
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
+        .map-view {
+            display: none;
+            height: calc(100vh - 160px);
+        }
+
+        .map-view.active {
+            display: block;
+        }
+
+        .list-view {
+            display: block;
+        }
+
+        .list-view.hidden {
+            display: none;
+        }
+
+        .map-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
         }
 
         .title {
@@ -65,7 +114,7 @@
             background: var(--bg-secondary);
             border-bottom: 1px solid var(--border);
             position: sticky;
-            top: 73px;
+            top: 115px;
             z-index: 99;
         }
 
@@ -320,9 +369,14 @@
         <div class="header-content">
             <h1 class="title">Pràctiques Lingüístiques</h1>
             <div class="subtitle">Establiments VxL · Barcelona · Febrer 2026</div>
+            <div class="tabs">
+                <button class="tab-btn active" id="tabList" onclick="switchTab('list')">📋 Llista</button>
+                <button class="tab-btn" id="tabMap" onclick="switchTab('map')">🗺️ Mapa</button>
+            </div>
         </div>
     </div>
 
+    <div id="listView">
     <div class="search-container">
         <div class="search-box">
             <span class="search-icon">🔍</span>
@@ -357,6 +411,20 @@
         <div class="no-results-icon">🔍</div>
         <div class="no-results-text">Cap establiment trobat</div>
         <div style="font-size: 0.875rem;">Prova amb un altre terme de cerca</div>
+    </div>
+    </div><!-- end listView -->
+
+    <div id="mapView" class="map-view">
+        <iframe
+            class="map-frame"
+            src="https://www.google.com/maps/d/embed?mid=1_KML_PLACEHOLDER_&ehbc=2E312F"
+            allowfullscreen
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+        ></iframe>
+        <div style="padding:1rem; background:var(--district-bg); font-size:0.8125rem; color:var(--text-secondary); border-top:1px solid var(--border);">
+            💡 Fes clic en qualsevol pin del mapa per veure el nom i l'adreça de l'establiment.
+        </div>
     </div>
 
     <script>
@@ -740,8 +808,29 @@
 
         let allExpanded = false;
 
-        function generateMapsUrl(lat, lng, name) {
-            return `https://www.google.com/maps/search/?api=1&query=${lat},${lng}&query_place_id=${encodeURIComponent(name)}`;
+        function generateMapsUrl(lat, lng, name, address) {
+            // Use name + address as the search query so Google Maps displays the place name
+            const query = encodeURIComponent(`${name}, ${address}, Barcelona`);
+            return `https://www.google.com/maps/search/?api=1&query=${query}`;
+        }
+
+        function switchTab(tab) {
+            const listView = document.getElementById('listView');
+            const mapView = document.getElementById('mapView');
+            const tabList = document.getElementById('tabList');
+            const tabMap = document.getElementById('tabMap');
+
+            if (tab === 'map') {
+                listView.style.display = 'none';
+                mapView.classList.add('active');
+                tabMap.classList.add('active');
+                tabList.classList.remove('active');
+            } else {
+                listView.style.display = 'block';
+                mapView.classList.remove('active');
+                tabList.classList.add('active');
+                tabMap.classList.remove('active');
+            }
         }
 
         function renderEstablishments() {
@@ -777,7 +866,7 @@
                     estabDiv.dataset.address = estab.address.toLowerCase();
                     estabDiv.dataset.area = estab.area.toLowerCase();
                     
-                    const mapsUrl = generateMapsUrl(estab.lat, estab.lng, estab.name);
+                    const mapsUrl = generateMapsUrl(estab.lat, estab.lng, estab.name, estab.address);
                     
                     estabDiv.innerHTML = `
                         <a href="${mapsUrl}" class="establishment-link" target="_blank">
