@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pràctiques Lingüístiques VxL - Barcelona</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Fraunces:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #f8f6f4;
+            --bg-secondary: #ffffff;
+            --text-primary: #1a1614;
+            --text-secondary: #6b6560;
+            --accent: #d84315;
+            --accent-light: #ff6e40;
+            --border: #e8e4e0;
+            --shadow: rgba(26, 22, 20, 0.08);
+            --district-bg: #fef8f5;
+        }
+
+        body {
+            font-family: 'DM Sans', -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+
+        .header-content {
+            padding: 1.25rem 1rem;
+        }
+
+        .title {
+            font-family: 'Fraunces', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 0.25rem;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .search-container {
+            padding: 1rem;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 73px;
+            z-index: 99;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.875rem 1rem 0.875rem 2.75rem;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: all 0.2s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: var(--bg-secondary);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            pointer-events: none;
+        }
+
+        .stats {
+            display: flex;
+            gap: 1rem;
+            padding: 0.75rem 1rem;
+            background: var(--district-bg);
+            border-bottom: 1px solid var(--border);
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+        }
+
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+        }
+
+        .stat-value {
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .content {
+            padding: 0.5rem 0 5rem 0;
+        }
+
+        .district {
+            margin-bottom: 0.5rem;
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px var(--shadow);
+        }
+
+        .district-header {
+            padding: 1rem 1.25rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, var(--district-bg) 0%, var(--bg-secondary) 100%);
+            border-bottom: 1px solid var(--border);
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            transition: background 0.2s ease;
+        }
+
+        .district-header:active {
+            background: var(--district-bg);
+        }
+
+        .district-title {
+            font-family: 'Fraunces', serif;
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            letter-spacing: -0.01em;
+        }
+
+        .district-count {
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            background: var(--bg-primary);
+            padding: 0.25rem 0.625rem;
+            border-radius: 8px;
+        }
+
+        .district-toggle {
+            margin-left: 0.75rem;
+            font-size: 1.25rem;
+            color: var(--accent);
+            transition: transform 0.3s ease;
+        }
+
+        .district.collapsed .district-toggle {
+            transform: rotate(-90deg);
+        }
+
+        .establishments {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out;
+        }
+
+        .district.expanded .establishments {
+            max-height: 5000px;
+        }
+
+        .establishment {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border);
+            transition: background 0.15s ease;
+        }
+
+        .establishment:last-child {
+            border-bottom: none;
+        }
+
+        .establishment:active {
+            background: var(--district-bg);
+        }
+
+        .establishment-link {
+            display: block;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .establishment-name {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.375rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .establishment-icon {
+            color: var(--accent);
+            font-size: 1.125rem;
+            flex-shrink: 0;
+        }
+
+        .establishment-address {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.25rem;
+            line-height: 1.5;
+        }
+
+        .establishment-notes {
+            font-size: 0.8125rem;
+            color: var(--accent-light);
+            font-weight: 500;
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            background: var(--district-bg);
+            border-radius: 6px;
+            border-left: 3px solid var(--accent);
+        }
+
+        .no-results {
+            padding: 3rem 1.5rem;
+            text-align: center;
+            color: var(--text-secondary);
+        }
+
+        .no-results-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+
+        .no-results-text {
+            font-size: 1.125rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .expand-all-btn {
+            margin: 1rem 1rem 0.5rem;
+            padding: 0.75rem 1.25rem;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 0.9375rem;
+            font-weight: 600;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer;
+            width: calc(100% - 2rem);
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(216, 67, 21, 0.2);
+        }
+
+        .expand-all-btn:active {
+            transform: scale(0.98);
+            box-shadow: 0 1px 4px rgba(216, 67, 21, 0.3);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-primary: #1a1614;
+                --bg-secondary: #242220;
+                --text-primary: #f8f6f4;
+                --text-secondary: #a8a5a0;
+                --accent: #ff6e40;
+                --accent-light: #ff8a65;
+                --border: #3a3634;
+                --shadow: rgba(0, 0, 0, 0.3);
+                --district-bg: #2a2624;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-4px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1 class="title">Pràctiques Lingüístiques</h1>
+            <div class="subtitle">Establiments VxL · Barcelona · Febrer 2026</div>
+        </div>
+    </div>
+
+    <div class="search-container">
+        <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input 
+                type="text" 
+                class="search-input" 
+                id="searchInput" 
+                placeholder="Cerca establiment, carrer o barri..."
+                autocomplete="off"
+            >
+        </div>
+    </div>
+
+    <div class="stats">
+        <div class="stat">
+            <span class="stat-value" id="visibleCount">355</span>
+            <span>establiments</span>
+        </div>
+        <div class="stat">
+            <span class="stat-value">10</span>
+            <span>districtes</span>
+        </div>
+    </div>
+
+    <button class="expand-all-btn" id="expandAllBtn">Expandir tots els districtes</button>
+
+    <div class="content" id="content">
+        <!-- Districts will be generated by JavaScript -->
+    </div>
+
+    <div class="no-results hidden" id="noResults">
+        <div class="no-results-icon">🔍</div>
+        <div class="no-results-text">Cap establiment trobat</div>
+        <div style="font-size: 0.875rem;">Prova amb un altre terme de cerca</div>
+    </div>
+
+    <script>
+        const establishments = {
+            "Ciutat Vella": [
+                { name: "Abracadabra Llibres", address: "C/ General Alvarez de Castro, 5", area: "Sant Pere, Santa Caterina i la Ribera", lat: 41.3867, lng: 2.1797 },
+                { name: "Arkham Còmics", address: "Carrer Xuclà, 16, local", area: "El Raval", lat: 41.3820, lng: 2.1720 },
+                { name: "Belles Arts Ferran SL", address: "C. Ferran, 39, local 2", area: "Gòtic", lat: 41.3817, lng: 2.1759 },
+                { name: "Cafè de les delícies", address: "Rambla del Raval, 47", area: "El Raval", lat: 41.3793, lng: 2.1695 },
+                { name: "Carns Batllori", address: "Mercat de la Barceloneta, parada 23-24", area: "La Barceloneta", lat: 41.3800, lng: 2.1869 },
+                { name: "Casa Carot", address: "C. Dagueria, 16", area: "Gòtic", lat: 41.3822, lng: 2.1772 },
+                { name: "Espai Mallorca", address: "Plaça Vicenç Martorell, 1, baixos", area: "El Raval", lat: 41.3838, lng: 2.1710 },
+                { name: "Farmàcia Avinyó", address: "C. Avinyó, 32", area: "Gòtic", lat: 41.3806, lng: 2.1768 },
+                { name: "Farmàcia Raimon Piqué Figuerola", address: "C. Sant Carles, 7", area: "La Barceloneta", lat: 41.3782, lng: 2.1880 },
+                { name: "Floristeria Navarrete Pizarro", address: "Carrer d'en Rull, 3", area: "Gòtic", lat: 41.3820, lng: 2.1753 },
+                { name: "Formatges i mantegues Simó", address: "C/ Sant Pere Més Alt, 40", area: "Sant Pere, Santa Caterina i la Ribera", lat: 41.3847, lng: 2.1795 },
+                { name: "Forn de pa artesà", address: "Regomir, 12", area: "Gòtic", lat: 41.3808, lng: 2.1775 },
+                { name: "Fruites i verdures Maria", address: "Francesc Cambó, s/n (Mercat Santa Caterina)", area: "Sant Pere, Santa Caterina i la Ribera", lat: 41.3848, lng: 2.1800 },
+                { name: "Guido Articles de Pell i Viatge", address: "Carrer Ferran, 14", area: "Gòtic", lat: 41.3821, lng: 2.1756 },
+                { name: "Impremta Sebtor", address: "C/ Hospital, 157", area: "El Raval", lat: 41.3796, lng: 2.1678 },
+                { name: "Isabel", address: "Plaça La Font, s/n, parada 7 exterior", area: "La Barceloneta", lat: 41.3798, lng: 2.1870 },
+                { name: "La Troballa", address: "C. Ample, 3", area: "Gòtic", lat: 41.3808, lng: 2.1773 },
+                { name: "Les ocasions", address: "C. Sant Carles, 10", area: "La Barceloneta", lat: 41.3781, lng: 2.1878 },
+                { name: "Llibreria Ça Porta", address: "C. Sant Pere Més Alt, 20", area: "Sant Pere, Santa Caterina i la Ribera", lat: 41.3847, lng: 2.1791 },
+                { name: "Llibreria Fahrenheit 451", address: "C. de la Ribera, 8", area: "Sant Pere, Santa Caterina i la Ribera", lat: 41.3840, lng: 2.1830 },
+                { name: "Mathom", address: "C/ del Pi, 1", area: "Gòtic", lat: 41.3829, lng: 2.1732 },
+                { name: "Menuts Lídia", address: "Plaça Font, s/n (Mercat Barceloneta, parada 51-53)", area: "La Barceloneta", lat: 41.3799, lng: 2.1869 },
+                { name: "Merceria Barceloneta", address: "Plaça la Font, s/n (parada exterior 4-6)", area: "La Barceloneta", lat: 41.3798, lng: 2.1868 },
+                { name: "Miret", address: "C. Petritxol, 6", area: "Gòtic", lat: 41.3831, lng: 2.1731 },
+                { name: "Noemí", address: "Plaça la Font, s/n", area: "La Barceloneta", lat: 41.3797, lng: 2.1870 },
+                { name: "Peix i Marisc Montse i Sònia", address: "Mercat de la Barceloneta, parada 48-50", area: "La Barceloneta", lat: 41.3800, lng: 2.1870 },
+                { name: "Polleria Caça Francesc", address: "Mercat de la Barceloneta, parada 27-28", area: "La Barceloneta", lat: 41.3799, lng: 2.1871 },
+                { name: "Tito Fresh Fruit", address: "Plaça Regomir, 1", area: "Gòtic", notes: "Preguntar pel Mansoor", lat: 41.3807, lng: 2.1775 },
+                { name: "Verduleria BUBUB", address: "Carrer Joaquim Costa, 29", area: "El Raval", lat: 41.3826, lng: 2.1694 }
+            ],
+            "Gràcia": [
+                { name: "Al Gra del sac al plat", address: "Sant Cristòfol, 17", area: "Vila de Gràcia", lat: 41.4028, lng: 2.1561 },
+                { name: "Alaska", address: "Av. Vallcarca, 44", area: "Vallcarca", lat: 41.4148, lng: 2.1480 },
+                { name: "Atzavara Llibreria", address: "Escorial, 94", area: "Camp d'en Grassot-Gràcia Nova", lat: 41.4052, lng: 2.1623 },
+                { name: "Bateau Lune", address: "Plaça de la Virreina, 7", area: "Gràcia", lat: 41.4040, lng: 2.1558 },
+                { name: "Bell Estiu", address: "Verdi, 8, local 2", area: "Vila de Gràcia", lat: 41.4028, lng: 2.1555 },
+                { name: "Del Be a la Manta", address: "Gran de Gràcia, 86", area: "Vila de Gràcia", lat: 41.4002, lng: 2.1558 },
+                { name: "EGE llibres i cosetes", address: "Benet Mercadé, 22, baixos", area: "Vila de Gràcia", lat: 41.4010, lng: 2.1562 },
+                { name: "El Celler de la Ribera", address: "Cigne, 12, baixos", area: "Vila de Gràcia", lat: 41.4022, lng: 2.1578 },
+                { name: "Flor de Lis", address: "Cigne, 15", area: "Vila de Gràcia", lat: 41.4023, lng: 2.1579 },
+                { name: "Idyllica", address: "Rambla de Prat, 11", area: "Vila de Gràcia", lat: 41.4060, lng: 2.1540 },
+                { name: "Industria 61", address: "Indústria, 61", area: "Camp d'En Grassot-Gràcia Nova", lat: 41.4055, lng: 2.1618 },
+                { name: "La mamavaca", address: "Rambla de Prat, 25", area: "Vila de Gràcia", notes: "Pràctiques: dimarts i dijous de 10 a 14", lat: 41.4063, lng: 2.1538 },
+                { name: "La Repunantinha", address: "Torrent de l'Olla, 143", area: "Vila de Gràcia", lat: 41.4058, lng: 2.1572 },
+                { name: "Les Cosines Rosa", address: "Puig-Rodon Pla, 14 bis", area: "Vila de Gràcia", notes: "Pràctiques: dijous i divendres 12-16h", lat: 41.4032, lng: 2.1560 },
+                { name: "Llibreria Claret", address: "Sicília, 410", area: "Gràcia", lat: 41.4062, lng: 2.1740 },
+                { name: "Llibreria La Memòria", address: "Plaça de la Vila de Gràcia, 19", area: "Gràcia", lat: 41.4035, lng: 2.1548 },
+                { name: "Llibreria Pàgina 128", address: "Torrent de l'Olla, 177", area: "Gràcia", lat: 41.4065, lng: 2.1573 },
+                { name: "Naturasi Biosi", address: "Ramon y Cajal, 42", area: "Gràcia Nova", lat: 41.4075, lng: 2.1635 },
+                { name: "Sendak", address: "Còrsega, 461", area: "Camp d'en Grassot-Gràcia Nova", lat: 41.4019, lng: 2.1751 },
+                { name: "Sol Nature", address: "Plaça de la Llibertat, 13", area: "Vila de Gràcia", lat: 41.4025, lng: 2.1548 },
+                { name: "Vestuari Compartit", address: "c/ Verdi, 100", area: "Vila de Gràcia", notes: "Obert de 18 a 20 hores", lat: 41.4055, lng: 2.1560 },
+                { name: "Vom Fass", address: "Cigne, 14", area: "Vila de Gràcia", lat: 41.4022, lng: 2.1579 },
+                { name: "Zueras art i plata", address: "Carrer del Cigne, 18", area: "Vila de Gràcia", lat: 41.4025, lng: 2.1580 },
+                { name: "El Caiman Alegre Roba Urbana", address: "Travessera de Gràcia, 168", area: "Vila de Gràcia", lat: 41.4022, lng: 2.1580 },
+                { name: "Forn la Sitja", address: "Carrer Providència, 59", area: "Camp d'en Grassot", lat: 41.4075, lng: 2.1570 },
+                { name: "Forn Rovira", address: "Rabassa, 25", area: "Gràcia", lat: 41.4038, lng: 2.1590 }
+            ],
+            "Eixample": [
+                { name: "Abacus Urquinaona", address: "c/ Ausiàs Marc, 16", area: "Dreta de l'Eixample", lat: 41.3905, lng: 2.1760 },
+                { name: "Al·lots", address: "Consell de Cent, 266", area: "Esquerra de l'Eixample", lat: 41.3873, lng: 2.1628 },
+                { name: "Albert Calçats", address: "Dos de Maig, 221", area: "Sagrada Família", lat: 41.4028, lng: 2.1817 },
+                { name: "Blau intens", address: "c. Floridablanca, 64", area: "Sant Antoni", lat: 41.3800, lng: 2.1622 },
+                { name: "Bracafè", address: "C. Comte d'Urgell, 35", area: "Sant Antoni", lat: 41.3825, lng: 2.1540 },
+                { name: "Carns Cinta", address: "Aragó, 317 (Mercat Concepció, parades 51-55)", area: "Dreta Eixample", lat: 41.3930, lng: 2.1728 },
+                { name: "Confeccions El rellotge", address: "Comte Borrell, 89", area: "Sant Antoni", lat: 41.3832, lng: 2.1559 },
+                { name: "Espai Abacus Enric Granados", address: "Enric Granados, 112", area: "Antiga Esquerra de l'Eixample", lat: 41.3942, lng: 2.1604 },
+                { name: "Farmàcia Eulàlia Vives Ferrer", address: "C. Manso, 64", area: "Sant Antoni", lat: 41.3790, lng: 2.1596 },
+                { name: "Farmàcia March Puigoriol", address: "C. Mallorca, 312", area: "Dreta de l'Eixample", lat: 41.3965, lng: 2.1741 },
+                { name: "Foto Xavi", address: "Av. Mistral, 8", area: "Sant Antoni", lat: 41.3775, lng: 2.1590 },
+                { name: "Gadial", address: "Ronda Sant Pau, 65", area: "Sant Antoni", lat: 41.3773, lng: 2.1651 },
+                { name: "Gasca Moda Home", address: "Tamarit, 169", area: "Sant Antoni", lat: 41.3829, lng: 2.1568 },
+                { name: "Gèneres de punt La Torre", address: "Pl. Universitat, 4", area: "Eixample", lat: 41.3872, lng: 2.1641 },
+                { name: "Halcon viatges", address: "c. Manso, 74", area: "Sant Antoni", lat: 41.3790, lng: 2.1598 },
+                { name: "Herboristeria Margarida Castaño", address: "Lepant, 172", area: "Eixample", lat: 41.4020, lng: 2.1828 },
+                { name: "Idiomes Tarradellas", address: "Av. Josep Tarradellas, 96", area: "Eixample", lat: 41.3872, lng: 2.1400 },
+                { name: "Idoni - Bon cor", address: "Avinguda Mistral, 20 bis", area: "Sant Antoni", lat: 41.3770, lng: 2.1575 },
+                { name: "La caixa d'eines", address: "Aragó, 367", area: "Dreta de l'Eixample", lat: 41.3932, lng: 2.1769 },
+                { name: "La Llama Store", address: "Tamarit, 148", area: "Eixample", lat: 41.3827, lng: 2.1563 },
+                { name: "Le Petit", address: "Calàbria, 136", area: "Nova Esquerra de l'Eixample", lat: 41.3835, lng: 2.1534 },
+                { name: "L'herbolari", address: "c. Rocafort, 50", area: "Sant Antoni", lat: 41.3800, lng: 2.1527 },
+                { name: "Llibreria Abadia", address: "Ausiàs March, 92", area: "Fort Pienc", lat: 41.3942, lng: 2.1857 },
+                { name: "Llibreria Calders", address: "Passatge de Pere Calders, 9", area: "Eixample", lat: 41.3793, lng: 2.1620 },
+                { name: "Llibreria de la Imatge", address: "Sepúlveda, 87", area: "Sant Antoni", lat: 41.3796, lng: 2.1579 },
+                { name: "Llibreria Documenta", address: "Pau Claris, 144", area: "Dreta de l'Eixample", lat: 41.3945, lng: 2.1692 },
+                { name: "Llibreria Finestres", address: "Diputació, 249", area: "Dreta Eixample", lat: 41.3892, lng: 2.1625 },
+                { name: "Merceria Esmar", address: "C/ Entença, 122", area: "Nova Esquerra de l'Eixample", lat: 41.3858, lng: 2.1483 },
+                { name: "Mobiliari Miralles", address: "C. Tamarit, 147", area: "Sant Antoni", lat: 41.3829, lng: 2.1567 },
+                { name: "Olives i conserves M. Rosa Benet", address: "Aragó, 313 (Mercat Concepció, parada 105)", area: "Dreta Eixample", lat: 41.3930, lng: 2.1726 },
+                { name: "Ona Llibres", address: "Pau Claris, 94", area: "Dreta de l'Eixample", lat: 41.3928, lng: 2.1688 },
+                { name: "Papereria Canut", address: "C/ Girona, 73", area: "Dreta de l'Eixample", lat: 41.3930, lng: 2.1697 },
+                { name: "Pastisseria Bonastre", address: "Tamarit, 136", area: "Eixample", lat: 41.3826, lng: 2.1560 },
+                { name: "Petit gegant", address: "Parlament, 6", area: "Sant Antoni", lat: 41.3793, lng: 2.1628 },
+                { name: "Reparat Millor que Nou", address: "C. Sepúlveda, 45-47, baixos", area: "Eixample", lat: 41.3797, lng: 2.1582 },
+                { name: "Santa Antònia", address: "Creu Coberta, 99", area: "Eixample", lat: 41.3762, lng: 2.1469 },
+                { name: "Sunta Peixaters", address: "Aragó, 317 (parades 84-89)", area: "Dreta Eixample", lat: 41.3930, lng: 2.1728 },
+                { name: "Tempo", address: "C. Calàbria, 62", area: "Eixample", lat: 41.3800, lng: 2.1527 },
+                { name: "Torrons Verdú", address: "Bruc, 126", area: "Dreta de l'Eixample", lat: 41.3975, lng: 2.1699 },
+                { name: "Valls, Roba per la llar", address: "València, 542, A51 (Encants Nous)", area: "Sagrada Família", lat: 41.4028, lng: 2.1865 },
+                { name: "Venivinum", address: "C/ de Còrsega, 209", area: "Nova Esquerra de l'Eixample", lat: 41.3960, lng: 2.1517 },
+                { name: "Via dolça", address: "c. Tamarit, 152", area: "Sant Antoni", notes: "Pràctiques només matins", lat: 41.3828, lng: 2.1565 },
+                { name: "Xarcuteria Filo", address: "Aragó, 317 (parades 77-81)", area: "Dreta Eixample", lat: 41.3930, lng: 2.1728 }
+            ],
+            "Horta - Guinardó": [
+                { name: "Ampli-Art Marimón", address: "Ptge. Llívia, 33", area: "Horta-Guinardó", lat: 41.4318, lng: 2.1530 },
+                { name: "Art i Paper", address: "Travessera de Gràcia 337", area: "Horta-Guinardó", lat: 41.4110, lng: 2.1618 },
+                { name: "Carnisseria Marina", address: "c/ Tajo, 75 (Mercat d'Horta, parades 18-21)", area: "Horta-Guinardó", lat: 41.4320, lng: 2.1480 },
+                { name: "Collell", address: "C/ Tajo 69-71", area: "Horta-Guinardó", lat: 41.4318, lng: 2.1478 },
+                { name: "El tastet de la Lola", address: "Avinguda Mare de Déu de Montserrat, 49", area: "Horta-Guinardó", lat: 41.4205, lng: 2.1630 },
+                { name: "Els colors de l'Eva", address: "Carrer De La Murtra, 135", area: "Horta-Guinardó", lat: 41.4380, lng: 2.1499 },
+                { name: "Els Remeis Herbolari", address: "Carrer Praga, 31", area: "Horta-Guinardó", lat: 41.4282, lng: 2.1765 },
+                { name: "Farmàcia Bonany Jané", address: "c/ Sant Antoni M. Claret, 97", area: "Horta-Guinardó", lat: 41.4105, lng: 2.1672 },
+                { name: "Ferreteria El Casal", address: "Passatge dels Garrofers, 29", area: "Horta-Guinardó", lat: 41.4322, lng: 2.1498 },
+                { name: "Fogons del Guinardó", address: "C/ Varsòvia 148, local 2", area: "Horta-Guinardó", lat: 41.4282, lng: 2.1758 },
+                { name: "Forners & Pastissers Puig", address: "c/ Àngel Marquès, 14-18 baixos", area: "Horta-Guinardó", lat: 41.4310, lng: 2.1478 },
+                { name: "Gaia llibres i jocs", address: "Av. Mare de Déu de Montserrat, 153", area: "Horta", lat: 41.4360, lng: 2.1540 },
+                { name: "Herbolari Dietètica Blau i Verd", address: "Tolrà 29-31", area: "Horta-Guinardó", lat: 41.4330, lng: 2.1492 },
+                { name: "Joguines i regals Moliné", address: "Plaça Eivissa, 6 (Galeries Horta, botiga 3)", area: "Horta-Guinardó", lat: 41.4318, lng: 2.1498 },
+                { name: "JOVE GALATEA", address: "c/ Palafox, 30-31 baixos", area: "Horta", lat: 41.4340, lng: 2.1500 },
+                { name: "La Bodegueta del Guinardó", address: "c/ Varsòvia, 84", area: "Horta-Guinardó", lat: 41.4280, lng: 2.1752 },
+                { name: "La Cepa de ORO", address: "Avinguda Mare de Déu de Montserrat, 35", area: "Horta-Guinardó", lat: 41.4202, lng: 2.1628 },
+                { name: "La Girella", address: "c/ Santa Carolina, 48", area: "Horta-Guinardó", lat: 41.4350, lng: 2.1501 },
+                { name: "La Marga Moda Infantil", address: "Av. de la Mare de Déu de Montserrat, 113", area: "Horta-Guinardó", lat: 41.4352, lng: 2.1538 },
+                { name: "La Yoguisteria", address: "c/Chapí, 28", area: "Horta", lat: 41.4340, lng: 2.1505 },
+                { name: "Lluna de paper", address: "Feliu i Codina, 6", area: "Horta-Guinardó", lat: 41.4320, lng: 2.1502 },
+                { name: "Ous Susana", address: "c/ Tajo, 75 (Mercat d'Horta, parada 72-73)", area: "Horta-Guinardó", lat: 41.4320, lng: 2.1480 },
+                { name: "Peixateria Marisqueria La Mar de Fresc", address: "c/ Tajo, 75 (Mercat d'Horta, parada 140-142)", area: "Horta-Guinardó", lat: 41.4320, lng: 2.1480 },
+                { name: "Peixateria Olga", address: "C/ Llobregós 147 (Mercat del Carmel, parades 23-28)", area: "Horta-Guinardó", lat: 41.4208, lng: 2.1658 },
+                { name: "Per Dins", address: "c/ Sant Antoni Ma Claret, 139", area: "Horta-Guinardó", lat: 41.4112, lng: 2.1682 }
+            ],
+            "Les Corts": [
+                { name: "ANS COCINAS BAÑOS Y OBRAS", address: "Travessera de les Corts, 220", area: "Les Corts", lat: 41.3862, lng: 2.1120 },
+                { name: "Ateneu Popular de les Corts", address: "Galileu, 252", area: "Les Corts", lat: 41.3865, lng: 2.1220 },
+                { name: "Bugaderia Solanas", address: "Caballero, 53", area: "Les Corts", lat: 41.3832, lng: 2.1138 },
+                { name: "Cal Pueyo", address: "Vilamur, 20", area: "Les Corts", lat: 41.3898, lng: 2.1049 },
+                { name: "Calçats Toll", address: "Cabestany, 5", area: "Les Corts", lat: 41.3825, lng: 2.1130 },
+                { name: "Carnisseries Solé", address: "Mercat de les Corts, parada 97-101", area: "Les Corts", lat: 41.3840, lng: 2.1170 },
+                { name: "Carns Banach", address: "Travessera de les Corts, 215 (Mercat)", area: "Les Corts", lat: 41.3840, lng: 2.1170 },
+                { name: "Crudicakes", address: "Carrer Comte de Güell, 25", area: "Les Corts", lat: 41.3873, lng: 2.1192 },
+                { name: "Diet Center", address: "Joan Güell, 172", area: "Les Corts", lat: 41.3842, lng: 2.1290 },
+                { name: "El Gat Pelut", address: "Caballero, 58", area: "Les Corts", lat: 41.3832, lng: 2.1140 },
+                { name: "El pa sencer", address: "Vallespir, 161", area: "Les Corts", lat: 41.3790, lng: 2.1092 },
+                { name: "EnergyClima", address: "Travessera de les Corts, 195", area: "Les Corts", lat: 41.3858, lng: 2.1115 },
+                { name: "Escoda Decoracions Alessandra", address: "C/ Joan Güell, 136", area: "Les Corts", lat: 41.3840, lng: 2.1280 },
+                { name: "Fent Punt", address: "Gran Via Carles III, 46-48", area: "Les Corts", lat: 41.3855, lng: 2.1135 },
+                { name: "Fruites i verdures Oms", address: "Mercat de les Corts, parada 46-48", area: "Les Corts", lat: 41.3840, lng: 2.1170 },
+                { name: "Fustacadabra", address: "Joan Güell, 131", area: "Les Corts", lat: 41.3838, lng: 2.1278 },
+                { name: "In Blue", address: "Travessera de les Corts, 300", area: "Les Corts", lat: 41.3870, lng: 2.1148 },
+                { name: "La pera", address: "Mercat de les Corts, parada 80-85", area: "Les Corts", lat: 41.3840, lng: 2.1170 },
+                { name: "Masclans Artesans del Bacallà", address: "Mercat de les Corts, parada 87-89", area: "Les Corts", lat: 41.3840, lng: 2.1170 },
+                { name: "Normafilms", address: "Travessera de les Corts, 261", area: "Les Corts", lat: 41.3862, lng: 2.1137 },
+                { name: "Peix de proximitat la Barqueta", address: "Mercat de les Corts, parada 105-108", area: "Les Corts", lat: 41.3840, lng: 2.1170 },
+                { name: "Rayo Òptics", address: "Travessera de les Corts, 236", area: "Les Corts", lat: 41.3860, lng: 2.1128 },
+                { name: "Sunta. Professionals del peix", address: "Mercat de les Corts, Travessera 215", area: "Les Corts", lat: 41.3840, lng: 2.1170 },
+                { name: "Vagi de gust SCP", address: "Mercat de les Corts, parada 70-71", area: "Les Corts", lat: 41.3840, lng: 2.1170 },
+                { name: "Xarcuteria Castelló", address: "Travessera de les Corts, 215 (Mercat)", area: "Les Corts", lat: 41.3840, lng: 2.1170 }
+            ],
+            "Nou Barris": [
+                { name: "Abacus Cooperativa - Fabra i Puig", address: "P. Fabra i Puig, 196", area: "Vilapicina i la Torre Llobeta", lat: 41.4400, lng: 2.1735 },
+                { name: "Alcúdia", address: "Alcúdia, 50", area: "Porta", lat: 41.4442, lng: 2.1770 },
+                { name: "Alella Viatges", address: "Alella, 45", area: "Porta", lat: 41.4450, lng: 2.1768 },
+                { name: "Auto-escuelas Batlle", address: "Passeig de Valldaura, 266", area: "Porta", lat: 41.4422, lng: 2.1758 },
+                { name: "Bar El Xampinyonet", address: "Antonio Machado, 10 (Mercat de Canyelles)", area: "Canyelles", lat: 41.4525, lng: 2.1680 },
+                { name: "Carns Juan i Loli", address: "Antonio Machado, 10 (Mercat de Canyelles)", area: "Canyelles", lat: 41.4525, lng: 2.1680 },
+                { name: "Comercial Kare", address: "Pg. Valldaura, 239", area: "Porta", lat: 41.4420, lng: 2.1752 },
+                { name: "Corsetería Alfonsita", address: "Passeig de Fabra i Puig, 223", area: "Vilapicina", notes: "Cal trucar: Rosa 607304587", lat: 41.4392, lng: 2.1730 },
+                { name: "Dietètica les Herbes", address: "Antonio Machado, 10 (Mercat de Canyelles)", area: "Canyelles", lat: 41.4525, lng: 2.1680 },
+                { name: "Edan Vedruna", address: "Pg Valldaura, 186 (Mercat de la Guineueta)", area: "La Guineueta", lat: 41.4498, lng: 2.1715 },
+                { name: "El cau de la Naira", address: "Av. Rios de Janeiro, 75, local 2", area: "Porta", lat: 41.4458, lng: 2.1762 },
+                { name: "El Taní vinològic", address: "Pl. Virrei Amat, 12", area: "Vilapicina i la Torre Llobeta", lat: 41.4382, lng: 2.1722 },
+                { name: "Farmàcia Garrofers", address: "Garrofers, 52", area: "Porta", lat: 41.4430, lng: 2.1755 },
+                { name: "Flowrspace", address: "Garrofers, 36", area: "Porta", lat: 41.4428, lng: 2.1752 },
+                { name: "Fruites Víctor", address: "Pg Valldaura, 186 (Mercat de la Guineueta)", area: "La Guineueta", lat: 41.4498, lng: 2.1715 },
+                { name: "Guitart & Gust", address: "Pg Valldaura, 186 (Mercat de la Guineueta)", area: "La Guineueta", lat: 41.4498, lng: 2.1715 },
+                { name: "Karnipolis", address: "Pg Valldaura, 186 (Mercat de la Guineueta)", area: "La Guineueta", lat: 41.4498, lng: 2.1715 },
+                { name: "La font de mimir", address: "Costa i Cuxart, 5", area: "Vilapicina i la Torre Llobeta", lat: 41.4388, lng: 2.1725 },
+                { name: "La ragatzza", address: "Pg Valldaura, 186 (Mercat de la Guineueta)", area: "La Guineueta", lat: 41.4498, lng: 2.1715 },
+                { name: "Llibreria Santos Ochoa", address: "P. Fabra i Puig, 165", area: "Vilapicina i la Torre Llobeta", lat: 41.4388, lng: 2.1726 },
+                { name: "Lusajo Esports", address: "Rbla. Fabra i Puig, 47", area: "Vilapicina i la Torre Llobeta", lat: 41.4378, lng: 2.1730 },
+                { name: "Mobles Artesania", address: "Artesania, 56", area: "La Guineueta", lat: 41.4510, lng: 2.1710 },
+                { name: "Modas Casas", address: "Antonio Machado, 10 (Mercat de Canyelles)", area: "Canyelles", lat: 41.4525, lng: 2.1680 },
+                { name: "Naturalment", address: "Pg. Valldaura, 186 (Mercat de la Guineueta)", area: "La Guineueta", lat: 41.4498, lng: 2.1715 },
+                { name: "Peix i marisc Neus", address: "Pg Valldaura, 186 (Mercat de la Guineueta)", area: "La Guineueta", lat: 41.4498, lng: 2.1715 },
+                { name: "Peixos Roqueta", address: "Antonio Machado, 10 (Mercat de Canyelles)", area: "Canyelles", lat: 41.4525, lng: 2.1680 },
+                { name: "Pollastres & altres Siscu", address: "Pg. Valldaura, 186 (Mercat de la Guineueta)", area: "La Guineueta", lat: 41.4498, lng: 2.1715 },
+                { name: "Salados Funes", address: "Pg Valldaura, 186 (Mercat de la Guineueta)", area: "La Guineueta", lat: 41.4498, lng: 2.1715 },
+                { name: "TASC (Turó Acció Socio Cultural)", address: "Passeig Fabra i Puig, 274-276", area: "Nou Barris", lat: 41.4405, lng: 2.1738 },
+                { name: "Teixits Irelena", address: "P. Fabra i Puig, 248", area: "Nou Barris", lat: 41.4402, lng: 2.1740 },
+                { name: "Xarcuteria M. Guerrero", address: "Pg Valldaura, 186 (Mercat de la Guineueta)", area: "La Guineueta", lat: 41.4498, lng: 2.1715 },
+                { name: "Xarcuteria Mireia", address: "Antonio Machado, 10 (Mercat de Canyelles)", area: "Canyelles", lat: 41.4525, lng: 2.1680 }
+            ],
+            "Sant Andreu": [
+                { name: "Aromes Cafè Lounge", address: "c/ Gran de Sant Andreu, 152", area: "Sant Andreu del Palomar", lat: 41.4378, lng: 2.1895 },
+                { name: "Azure", address: "c/ Gran de Sant Andreu", area: "Sant Andreu del Palomar", lat: 41.4378, lng: 2.1900 },
+                { name: "Call", address: "c/ Gran de Sant Andreu, 265", area: "Sant Andreu del Palomar", lat: 41.4390, lng: 2.1915 },
+                { name: "Cansaladeria Puig", address: "Gran de Sant Andreu, 147", area: "Sant Andreu de Palomar", lat: 41.4375, lng: 2.1892 },
+                { name: "Carnisseria Andreu", address: "Pl. Mercadal, 41 (Mercat, p.11)", area: "Sant Andreu de Palomar", lat: 41.4368, lng: 2.1885 },
+                { name: "Casa Rusca", address: "c/ Gran de Sant Andreu, 135", area: "Sant Andreu del Palomar", lat: 41.4372, lng: 2.1890 },
+                { name: "Collita pròpia Tugas i companyia", address: "Plaça del Mercadal, 41 (Mercat, Parada 20)", area: "Sant Andreu de Palomar", lat: 41.4368, lng: 2.1885 },
+                { name: "Cupcakemoka Bakery", address: "c. del Llenguadoc, 92", area: "Sant Andreu del Palomar", lat: 41.4360, lng: 2.1878 },
+                { name: "Dit i fet", address: "c/ Balari i Jovany, 4", area: "Sant Andreu de Palomar", lat: 41.4372, lng: 2.1880 },
+                { name: "Espai de joc", address: "C. de Llenguadoc 49", area: "Sant Andreu de Palomar", lat: 41.4358, lng: 2.1875 },
+                { name: "Farmàcia Franquesa", address: "C. Gran de Sant Andreu, 260", area: "Sant Andreu de Palomar", lat: 41.4388, lng: 2.1912 },
+                { name: "Finetwork", address: "Carrer Gran de Sant Andreu, 205", area: "Sant Andreu de Palomar", lat: 41.4382, lng: 2.1905 },
+                { name: "Formatgeria Ireneu", address: "c/ Gran de Sant Andreu", area: "Sant Andreu de Palomar", lat: 41.4380, lng: 2.1902 },
+                { name: "Forn Trinitat", address: "Plaça de la Trinitat, 14", area: "Sant Andreu de Palomar", lat: 41.4362, lng: 2.1882 },
+                { name: "Graneria Sant Andreu", address: "c. Gran de Sant Andreu, 29", area: "Sant Andreu de Palomar", lat: 41.4348, lng: 2.1860 },
+                { name: "Jocs i Joguines didàctiques La Jota", address: "c. Borriana, 95", area: "Sant Andreu de Palomar", lat: 41.4360, lng: 2.1870 },
+                { name: "La botiga de la Pepi", address: "c. Mercat, 4", area: "Sant Andreu del Palomar", lat: 41.4370, lng: 2.1885 },
+                { name: "La Botiga Ecològica", address: "Gran de Sant Andreu, 242", area: "Sant Andreu de Palomar", lat: 41.4386, lng: 2.1910 },
+                { name: "La Tribu Llibreria", address: "c. Pons i Gallarza, 30", area: "Sant Andreu de Palomar", lat: 41.4358, lng: 2.1875 },
+                { name: "Llenceria Maria", address: "Ajuntament, 5", area: "Sant Andreu de Palomar", lat: 41.4368, lng: 2.1882 },
+                { name: "Llibreria Canales", address: "Rbla. Fabra i Puig, 3", area: "Sant Andreu del Palomar", lat: 41.4345, lng: 2.1855 },
+                { name: "Llibreria Papereria La Bosch", address: "Passeig de Maragall, 166", area: "El Congrés i els Indians", lat: 41.4305, lng: 2.1790 },
+                { name: "Lluna de Formatge", address: "c. Ajuntament, 12", area: "Sant Andreu de Palomar", lat: 41.4368, lng: 2.1883 },
+                { name: "Matalasseria Lázaro", address: "Gran de Sant Andreu, 184", area: "Sant Andreu de Palomar", lat: 41.4380, lng: 2.1898 },
+                { name: "Merceria Perelló", address: "c. Gran de Sant Andreu, 261", area: "Sant Andreu de Palomar", lat: 41.4388, lng: 2.1913 },
+                { name: "NATURASI MANDUCA", address: "c. Garcilaso, 191", area: "El Congrés i els Indians", lat: 41.4312, lng: 2.1800 },
+                { name: "Onix BCN Perruqueria Vegana", address: "c. de Nadal, 31", area: "Sant Andreu del Palomar", lat: 41.4358, lng: 2.1870 },
+                { name: "Opticalia Sant Andreu", address: "Carrer Gran de Sant Andreu, 414", area: "Sant Andreu de Palomar", lat: 41.4415, lng: 2.1945 },
+                { name: "Orient Express Modelisme", address: "c. Gran de Sant Andreu, 12", area: "Sant Andreu de Palomar", lat: 41.4342, lng: 2.1855 },
+                { name: "Piacci Argent", address: "Plaça del Comerç, 3", area: "Sant Andreu del Palomar", lat: 41.4362, lng: 2.1878 },
+                { name: "Polleria Eulàlia", address: "Pl. Mercadal, 41, parades 21-22 (Mercat)", area: "Sant Andreu de Palomar", lat: 41.4368, lng: 2.1885 },
+                { name: "Sabateca", address: "c. Gran de Sant Andreu, 208", area: "Sant Andreu del Palomar", lat: 41.4383, lng: 2.1905 },
+                { name: "Several Cafè", address: "c/ Gran de Sant Andreu, 165", area: "Sant Andreu del Palomar", lat: 41.4378, lng: 2.1895 },
+                { name: "Sol&Deco", address: "Passeig Maragall, 178-180 Local 3", area: "El Congrés i els Indians", lat: 41.4308, lng: 2.1792 },
+                { name: "Terranova 80", address: "C/ Segre, 55, local 1 bis", area: "Sant Andreu de Palomar", lat: 41.4350, lng: 2.1862 },
+                { name: "Viatges Pons", address: "Rubén Darío, 15", area: "Sant Andreu de Palomar", lat: 41.4360, lng: 2.1880 }
+            ],
+            "Sant Martí": [
+                { name: "Adm. Loteria Poblenou", address: "C. Llull, 189", area: "Poblenou", lat: 41.3988, lng: 2.1980 },
+                { name: "Aimada", address: "C. Marià Aguiló, 120, baixos", area: "Poblenou", lat: 41.3980, lng: 2.1955 },
+                { name: "Angie & Deme Dreams", address: "C. Doctor Trueta, 146, local 1", area: "Poblenou", lat: 41.3970, lng: 2.1970 },
+                { name: "Armand Òptics", address: "Clot, 66", area: "Clot", lat: 41.4108, lng: 2.1852 },
+                { name: "Arxé Moda", address: "Pl. del Doctor Serrat, 3", area: "Clot", lat: 41.4098, lng: 2.1855 },
+                { name: "Associació de Ball Alocubano", address: "C. Joncar, 27, local 2", area: "Poblenou", lat: 41.3960, lng: 2.1962 },
+                { name: "Associació Llibres Lliures Catalunya", address: "c/ Cantàbria, 72", area: "La Verneda", notes: "PL només dilluns i dimecres matins", lat: 41.4102, lng: 2.2080 },
+                { name: "Aúpa Organics", address: "Rbla. del Poblenou, 66", area: "Poblenou", lat: 41.3998, lng: 2.1965 },
+                { name: "Autoescola la Ele", address: "Rambla Prim, 83", area: "El Besòs i El Maresme", lat: 41.4072, lng: 2.2150 },
+                { name: "Bar Catalunya", address: "C. Pere IV, 120", area: "Poblenou", lat: 41.3975, lng: 2.1918 },
+                { name: "Bar del Centre Cultural la Farinera del Clot", address: "Av. Gran Via de les Corts Catalanes, 837", area: "Clot", lat: 41.4098, lng: 2.1878 },
+                { name: "Bar Restaurant Núria Pous", address: "C. Santander, 16", area: "La Verneda i La Pau", lat: 41.4085, lng: 2.2060 },
+                { name: "Blanco Mobles", address: "C. Marià Aguiló, 116", area: "Poblenou", lat: 41.3978, lng: 2.1952 },
+                { name: "Bolibloc", address: "C. Sant Quintí, 39", area: "Camp de l'Arpa del Clot", lat: 41.4108, lng: 2.1802 },
+                { name: "Can Culleres", address: "C. Bilbao, 79", area: "Poblenou", notes: "Pràctiques: dimecres i dijous 9.30-11.30h", lat: 41.4005, lng: 2.1945 },
+                { name: "Carnisseria Ana Pilar", address: "Rambla Prim, 153", area: "La Pau i La Verneda", lat: 41.4082, lng: 2.2160 },
+                { name: "Carnisseria Lourdes", address: "Pl. del Mercat, 26 (Mercat del Clot)", area: "Clot", lat: 41.4100, lng: 2.1848 },
+                { name: "Carns Úrsula", address: "Pl. del Mercat, 26 (Mercat del Clot)", area: "Clot", lat: 41.4100, lng: 2.1848 },
+                { name: "DVI Vinoteca", address: "C. Marià Aguiló, 120", area: "Poblenou", lat: 41.3980, lng: 2.1955 },
+                { name: "El Pagès", address: "Pl. del Mercat, 26 (Mercat del Clot)", area: "Clot", lat: 41.4100, lng: 2.1848 },
+                { name: "El Trapella del Poblenou", address: "C. Pujades, 207 bis", area: "Poblenou", lat: 41.3965, lng: 2.1938 },
+                { name: "Embotits i Formatges J. Salvat", address: "Pl. del Mercat, 26 (Mercat del Clot)", area: "Clot", lat: 41.4100, lng: 2.1848 },
+                { name: "Escola-Taller Novart", address: "Enamorats, 140", area: "Clot", lat: 41.4118, lng: 2.1840 },
+                { name: "Estanc Papereria Paloma", address: "C. Clot, 59", area: "Clot", lat: 41.4108, lng: 2.1850 },
+                { name: "Farmàcia Diagonal 180", address: "Av. Diagonal, 180", area: "Poblenou", lat: 41.3972, lng: 2.1918 },
+                { name: "Farmàcia Jaume Giró Loperena", address: "Marià Aguiló, 53", area: "Poblenou", lat: 41.3970, lng: 2.1930 },
+                { name: "Farmàcia Marina Oriol", address: "C. Llull, 187", area: "Poblenou", lat: 41.3988, lng: 2.1978 },
+                { name: "Farmàcia Montse Villar", address: "Rambla Poblenou, 21", area: "Poblenou", lat: 41.3998, lng: 2.1960 },
+                { name: "Farmàcia Poblenou", address: "C. Pallars, 231", area: "Poblenou", lat: 41.3982, lng: 2.1952 },
+                { name: "FNAC Glòries", address: "Av. Diagonal, 208", area: "Poblenou", lat: 41.3980, lng: 2.1920 },
+                { name: "Forn Elias", address: "C. Freser, 90", area: "Camp de l'Arpa del Clot", lat: 41.4118, lng: 2.1820 },
+                { name: "Forn Santanach", address: "Rambla Poble Nou 98", area: "Poblenou", lat: 41.4005, lng: 2.1968 },
+                { name: "Fruites i Verdures Pili", address: "Pl. del Mercat, 26 (Mercat del Clot)", area: "Clot", lat: 41.4100, lng: 2.1848 },
+                { name: "Ginkgo Llar", address: "C. Marià Aguiló, 59", area: "Poblenou", lat: 41.3972, lng: 2.1932 },
+                { name: "Gos i Gat", address: "Rogent, 16", area: "Camp de l'Arpa del Clot", lat: 41.4118, lng: 2.1808 },
+                { name: "Hard Bikes", address: "C. Aragó, 648", area: "El Clot", lat: 41.4105, lng: 2.1862 },
+                { name: "Idem Art Gràfic", address: "C. Marià Aguiló, 24", area: "Poblenou", lat: 41.3968, lng: 2.1920 },
+                { name: "Invictus Nutrició & Fitness", address: "Rogent, 3", area: "Camp de l'Arpa del Clot", lat: 41.4118, lng: 2.1805 },
+                { name: "La Boutique del Peix", address: "Pl. del Mercat, 26 (Mercat del Clot)", area: "Clot", lat: 41.4100, lng: 2.1848 },
+                { name: "La Parada d'en Rafel", address: "Pl. del Mercat, 26 (Mercat del Clot)", area: "Clot", lat: 41.4100, lng: 2.1848 },
+                { name: "Llegums cuits", address: "C. Sèquia Comtal, 14", area: "Clot", lat: 41.4105, lng: 2.1840 },
+                { name: "Llibreria Etcètera", address: "c/ Llull, 203", area: "Poblenou", notes: "Botiga històrica; dilluns matí no PL", lat: 41.3990, lng: 2.1982 },
+                { name: "Llibreria Numància", address: "C. Clot, 184", area: "Clot", lat: 41.4112, lng: 2.1868 },
+                { name: "Llibreria Pebre Negre", address: "Carrer Clot, 41", area: "Clot", lat: 41.4105, lng: 2.1845 },
+                { name: "Mamá Heladera", address: "Rbla. Poblenou, 44", area: "Poblenou", lat: 41.4000, lng: 2.1963 },
+                { name: "Òptica Poblenou", address: "c. Marià Aguiló, 88", area: "Poblenou", lat: 41.3975, lng: 2.1940 },
+                { name: "Ortopèdia Clot", address: "C. Clot, 82", area: "Clot", lat: 41.4108, lng: 2.1852 },
+                { name: "Orxateria, Gelateria Mallorca", address: "C. Mallorca, 620", area: "Clot", lat: 41.4112, lng: 2.1865 },
+                { name: "Papereria L'Amistat", address: "C. Amistat, 7", area: "Poblenou", lat: 41.3965, lng: 2.1925 },
+                { name: "Pasta Fresca Celentano", address: "Pl. del Mercat, 26 (Mercat del Clot)", area: "Clot", lat: 41.4100, lng: 2.1848 },
+                { name: "Pastisseria Confiteria La Palma", address: "Clot, 68-74", area: "Clot", notes: "Botiga històrica", lat: 41.4108, lng: 2.1850 },
+                { name: "Pastisseria Gual", address: "C. Mallorca, 529", area: "Camp de l'Arpa del Clot", notes: "Botiga històrica", lat: 41.4112, lng: 2.1855 },
+                { name: "Pastisseria Guifré", address: "Rambla del Poblenou, 71", area: "Poblenou", lat: 41.4002, lng: 2.1966 },
+                { name: "Peix de Platja Carmen", address: "Pl. del Mercat, 26 (Mercat del Clot)", area: "Clot", lat: 41.4100, lng: 2.1848 },
+                { name: "Peixos Jack", address: "C. Jaume Huguet, 38 (Mercat Besòs)", area: "El Besòs i El Maresme", lat: 41.4068, lng: 2.2135 },
+                { name: "PrincipElsa", address: "C. Mallorca, 592", area: "Clot", lat: 41.4110, lng: 2.1862 },
+                { name: "Repúblic Cafè Poblenou", address: "Rbla. Poblenou, 22", area: "Poblenou", lat: 41.3998, lng: 2.1958 },
+                { name: "Saladitos", address: "Pl. del Mercat, 26 (Mercat del Clot)", area: "Clot", lat: 41.4100, lng: 2.1848 },
+                { name: "Sanitas Poblenou", address: "Bilbao, 83", area: "Poblenou", notes: "Demanar per la Natàlia, matins", lat: 41.4005, lng: 2.1942 },
+                { name: "Siente", address: "Rogent, 96", area: "Camp de l'Arpa del Clot", lat: 41.4122, lng: 2.1815 },
+                { name: "Teixidó", address: "C. Marià Aguiló, 48", area: "Poblenou", lat: 41.3970, lng: 2.1928 },
+                { name: "Tocineria Els Nois", address: "C. Rogent, 132", area: "Camp de l'Arpa del Clot", lat: 41.4125, lng: 2.1820 },
+                { name: "Tutto Donna", address: "C. Sèquia Comtal, 3", area: "Clot", lat: 41.4105, lng: 2.1838 },
+                { name: "Xagrí", address: "Rbla. Poblenou, 77", area: "Poblenou", lat: 41.4003, lng: 2.1968 },
+                { name: "Xarcuteria Ros Castellà", address: "Pl. del Mercat, 26 (Mercat del Clot)", area: "Clot", lat: 41.4100, lng: 2.1848 },
+                { name: "Xarcuters J. Tena", address: "Rambla del Poblenou, 89", area: "Poblenou", lat: 41.4003, lng: 2.1969 },
+                { name: "Zerovuit brewing", address: "C. Llacuna, 165", area: "Clot", lat: 41.4002, lng: 2.1910 }
+            ],
+            "Sants-Montjuïc": [
+                { name: "4 Grapes", address: "C/ Càceres, 14", area: "Sants", lat: 41.3755, lng: 2.1408 },
+                { name: "Aguapur", address: "Rector Triadó, 15", area: "Hostafrancs", lat: 41.3758, lng: 2.1430 },
+                { name: "Associació cultural La Bibliomusicineteca", address: "C/ Vila i Vilà, 76", area: "Poble-sec", lat: 41.3742, lng: 2.1612 },
+                { name: "Barbiblio", address: "Amnistia Internacional, 10", area: "La Marina", notes: "Cal preguntar per l'Andrea", lat: 41.3660, lng: 2.1385 },
+                { name: "Bar-celona (Sants)", address: "Sants, 308", area: "Sants-Badal", notes: "Pràctiques només matins", lat: 41.3762, lng: 2.1290 },
+                { name: "Bar-celona (Vallespir)", address: "Vallespir, 81", area: "Sants-Badal", lat: 41.3762, lng: 2.1315 },
+                { name: "Barra/llibre", address: "Riego, 13", area: "Sants", lat: 41.3755, lng: 2.1422 },
+                { name: "Cansaladeria Joan Vidal", address: "Vallespir, 55", area: "Sants", lat: 41.3760, lng: 2.1312 },
+                { name: "Cansaladeries Aldomà", address: "Mercat d'Hostafrancs, parada 169-198", area: "Hostafrancs", lat: 41.3755, lng: 2.1468 },
+                { name: "Carnisseria Arrom", address: "Mercat de Sants, carrer Sant Jordi, 6", area: "Sants", lat: 41.3762, lng: 2.1378 },
+                { name: "Carns Gasull", address: "Mercat de Sants, carrer Sant Jordi, 6", area: "Sants", lat: 41.3762, lng: 2.1378 },
+                { name: "Casa Vives", address: "Sants, 74", area: "Sants", lat: 41.3758, lng: 2.1415 },
+                { name: "Celler de Gelida", address: "Vallespir, 65", area: "Sants", lat: 41.3762, lng: 2.1315 },
+                { name: "Centre de Teràpies Sàlvia", address: "Ricart, 3", area: "Poble-sec", lat: 41.3745, lng: 2.1618 },
+                { name: "Espai Tallerets", address: "Carrer Antoni de Capmany, 71", area: "Sants", lat: 41.3762, lng: 2.1362 },
+                { name: "Farmàcia Àngels Escolà Marco", address: "Sant Roc, 26", area: "Hostafrancs", lat: 41.3755, lng: 2.1440 },
+                { name: "Farmàcia Domingo", address: "Salvà, 33", area: "Poble-sec", lat: 41.3745, lng: 2.1625 },
+                { name: "Flors Dolors", address: "Mercat d'Hostafrancs, parada exterior 86", area: "Hostafrancs", lat: 41.3755, lng: 2.1468 },
+                { name: "Fruiteria El Tros", address: "Creu Coberta, 93", area: "Hostafrancs", lat: 41.3755, lng: 2.1468 },
+                { name: "Fruits secs Roser", address: "C/ Creu Coberta, 93", area: "Hostafrancs", lat: 41.3755, lng: 2.1468 },
+                { name: "Granja La Tassa", address: "Gran Via de les Corts Catalanes, 278", area: "La Font de la Guatlla", lat: 41.3750, lng: 2.1508 },
+                { name: "Index Books", address: "Melcior de Palau, 145", area: "Sants", lat: 41.3778, lng: 2.1320 },
+                { name: "Juguetes Rubio", address: "Creu dels Molers, 36-38", area: "Poble-sec", lat: 41.3748, lng: 2.1638 },
+                { name: "Júlia Fruites i Verdures", address: "Mercat de Sants, carrer Sant Jordi, 6", area: "Sants", lat: 41.3762, lng: 2.1378 },
+                { name: "Kaburi", address: "Sants, 17", area: "Sants", lat: 41.3758, lng: 2.1408 },
+                { name: "La Carbonera", address: "Blai, 40", area: "Poble-sec", lat: 41.3742, lng: 2.1640 },
+                { name: "La carn de la Noe", address: "c/ Creu Coberta, 93", area: "Hostafrancs", lat: 41.3755, lng: 2.1468 },
+                { name: "La Conxita", address: "Vallespir, 59", area: "Sants", lat: 41.3760, lng: 2.1312 },
+                { name: "La igualitària Economat Cooperatiu", address: "Vallhonrat, 18", area: "Poble-sec", lat: 41.3748, lng: 2.1630 },
+                { name: "Lemon Printers", address: "Portbou, 30", area: "Sants", lat: 41.3758, lng: 2.1388 },
+                { name: "L'estanc del carrer Blai", address: "Carrer Blai, 1", area: "Poble-sec", lat: 41.3742, lng: 2.1635 },
+                { name: "Llegits", address: "Sants, 162", area: "Sants", lat: 41.3762, lng: 2.1358 },
+                { name: "Llet crua", address: "C/ Càceres, 14", area: "Sants", lat: 41.3755, lng: 2.1408 },
+                { name: "Marisc Vilaespasa", address: "C/ Hostafrancs, 93", area: "Hostafrancs", lat: 41.3755, lng: 2.1468 },
+                { name: "Momments", address: "Carrer dels Comtes de Bell-lloc, 80", area: "Sants", lat: 41.3762, lng: 2.1348 },
+                { name: "Nadons i mamis", address: "C/ Sant Medir, 4", area: "Sants", lat: 41.3760, lng: 2.1390 },
+                { name: "Nou 132 Serigrafia", address: "Nou de la Rambla, 132", area: "Poble-sec", lat: 41.3748, lng: 2.1648 },
+                { name: "Papereria llibreria Nitus", address: "Blai, 6", area: "Poble-sec", lat: 41.3742, lng: 2.1635 },
+                { name: "Papereria Nu&Ca", address: "Roser, 5", area: "Poble-sec", lat: 41.3745, lng: 2.1622 },
+                { name: "Peixateria Maria Lluïsa", address: "Olivera, 33", area: "Poble-sec", lat: 41.3745, lng: 2.1628 },
+                { name: "Peixos Martí", address: "C/ Creu Coberta, 93", area: "Hostafrancs", lat: 41.3755, lng: 2.1468 },
+                { name: "Roldan Joiers", address: "C/ Blai, 16", area: "Poble-sec", lat: 41.3742, lng: 2.1638 },
+                { name: "Teixits Pàdua", address: "Sant Jordi, 13", area: "Sants", lat: 41.3762, lng: 2.1378 },
+                { name: "Terra de salut", address: "Blesa, 45", area: "Poble-sec", lat: 41.3748, lng: 2.1628 }
+            ],
+            "Sarrià - Sant Gervasi": [
+                { name: "Àudio Vídeo Tell", address: "C/ Guillem Tell, 36", area: "El Farró", lat: 41.3998, lng: 2.1408 },
+                { name: "ÀUPALI!", address: "C. de la Tradició, 5", area: "Sarrià", lat: 41.3985, lng: 2.1148 },
+                { name: "BANBO TOYS", address: "Laforja, 77", area: "Galvany", lat: 41.3988, lng: 2.1520 },
+                { name: "BO DE BO", address: "C. Sant Hermenegild, 7-9", area: "El Farró", lat: 41.3998, lng: 2.1412 },
+                { name: "Bocí", address: "Via Augusta, 112", area: "El Farró", lat: 41.3998, lng: 2.1422 },
+                { name: "Cake House", address: "Pl. Mañé i Flaquer, 4", area: "El Farró", lat: 41.3998, lng: 2.1418 },
+                { name: "Calçats Arenillas", address: "Av. Riera de Cassoles, 15", area: "El Farró", lat: 41.4008, lng: 2.1375 },
+                { name: "Farmàcia Ana Mera Albarracín", address: "Av. Riera de Cassoles, 43", area: "El Farró", lat: 41.4010, lng: 2.1382 },
+                { name: "Farmàcia Marco Consentino", address: "C. Puig-reig, 10", area: "El Farró", lat: 41.4005, lng: 2.1390 },
+                { name: "Farmàcia Ortopèdia Bonaplata", address: "C. Bonaplata, 32", area: "Sarrià", lat: 41.3985, lng: 2.1130 },
+                { name: "Floristeria Margarita", address: "C. Pàdua, 98", area: "El Farró", lat: 41.4005, lng: 2.1420 },
+                { name: "FORN DE CABRIANES", address: "C. Major de Sarrià, 100", area: "Sarrià", lat: 41.3992, lng: 2.1158 },
+                { name: "GARITU VERMUTERIA", address: "Av. Riera de Cassoles, 67", area: "El Farró", lat: 41.4012, lng: 2.1388 },
+                { name: "Handsel & Granel", address: "Av. Riera de Cassoles, 13", area: "El Farró", lat: 41.4008, lng: 2.1372 },
+                { name: "HORT DEL FARRÓ", address: "C. Septimània, 51", area: "El Farró", lat: 41.4000, lng: 2.1402 },
+                { name: "La Papereria J.R.", address: "Av. de la Riera de Cassoles, 9", area: "El Farró", lat: 41.4008, lng: 2.1370 },
+                { name: "La Piccola Llibreria Italiana", address: "Pl. Sant Vicenç de Sarrià, 2", area: "Sarrià", lat: 41.3988, lng: 2.1152 },
+                { name: "LA SASTRERIA BARCELONA", address: "Av. Riera de Cassoles, 7", area: "El Farró", lat: 41.4008, lng: 2.1368 },
+                { name: "LA TIETA PATCH", address: "Av. Riera de Cassoles, 39, local 2", area: "El Farró", lat: 41.4010, lng: 2.1380 },
+                { name: "Le Pain d'Éric & Benjamin", address: "C. Cardenal Vives i Tutó, 60", area: "Sarrià", lat: 41.3988, lng: 2.1142 },
+                { name: "Llibreria A Peu de Pàgina", address: "C/ Major de Sarrià, 50", area: "Sarrià", lat: 41.3990, lng: 2.1150 },
+                { name: "L'OBJECTISTA", address: "Via Augusta, 106", area: "El Farró", lat: 41.3997, lng: 2.1420 },
+                { name: "Matalasseria A. Mercader", address: "C. Alfons XII, 81", area: "El Farró", lat: 41.4002, lng: 2.1415 },
+                { name: "Ous i Aviram Mari", address: "Passeig de la Reina Elisenda de Montcada, 8", area: "Sarrià", lat: 41.3985, lng: 2.1135 },
+                { name: "Pastisseria La perla de Sant Gervasi", address: "C. de les Santjoanistes, 6", area: "El Farró", lat: 41.4000, lng: 2.1410 },
+                { name: "STENCIL BARCELONA", address: "Av. de la Riera de Cassoles, 11", area: "El Farró", lat: 41.4008, lng: 2.1372 },
+                { name: "TOSSUDA STUDIO", address: "C. Vallirana, 63, local dret", area: "El Farró", lat: 41.4002, lng: 2.1418 },
+                { name: "Xarcuteria Lluís Bragulat", address: "C/ Pàdua, 105", area: "El Farró", lat: 41.4005, lng: 2.1422 }
+            ]
+        };
+
+        let allExpanded = false;
+
+        function generateMapsUrl(lat, lng, name) {
+            return `https://www.google.com/maps/search/?api=1&query=${lat},${lng}&query_place_id=${encodeURIComponent(name)}`;
+        }
+
+        function renderEstablishments() {
+            const content = document.getElementById('content');
+            content.innerHTML = '';
+            
+            Object.entries(establishments).forEach(([district, estabs]) => {
+                const districtDiv = document.createElement('div');
+                districtDiv.className = 'district collapsed';
+                
+                const header = document.createElement('div');
+                header.className = 'district-header';
+                header.innerHTML = `
+                    <div style="display: flex; align-items: center; flex: 1;">
+                        <span class="district-title">${district}</span>
+                        <span class="district-count">${estabs.length}</span>
+                    </div>
+                    <span class="district-toggle">▼</span>
+                `;
+                
+                header.addEventListener('click', () => {
+                    districtDiv.classList.toggle('expanded');
+                    districtDiv.classList.toggle('collapsed');
+                });
+                
+                const estabsDiv = document.createElement('div');
+                estabsDiv.className = 'establishments';
+                
+                estabs.forEach(estab => {
+                    const estabDiv = document.createElement('div');
+                    estabDiv.className = 'establishment';
+                    estabDiv.dataset.name = estab.name.toLowerCase();
+                    estabDiv.dataset.address = estab.address.toLowerCase();
+                    estabDiv.dataset.area = estab.area.toLowerCase();
+                    
+                    const mapsUrl = generateMapsUrl(estab.lat, estab.lng, estab.name);
+                    
+                    estabDiv.innerHTML = `
+                        <a href="${mapsUrl}" class="establishment-link" target="_blank">
+                            <div class="establishment-name">
+                                <span class="establishment-icon">📍</span>
+                                ${estab.name}
+                            </div>
+                            <div class="establishment-address">${estab.address} · ${estab.area}</div>
+                            ${estab.notes ? `<div class="establishment-notes">${estab.notes}</div>` : ''}
+                        </a>
+                    `;
+                    
+                    estabsDiv.appendChild(estabDiv);
+                });
+                
+                districtDiv.appendChild(header);
+                districtDiv.appendChild(estabsDiv);
+                content.appendChild(districtDiv);
+            });
+        }
+
+        function performSearch(query) {
+            const lowerQuery = query.toLowerCase().trim();
+            const districts = document.querySelectorAll('.district');
+            const noResults = document.getElementById('noResults');
+            let visibleCount = 0;
+            
+            if (!lowerQuery) {
+                districts.forEach(district => {
+                    district.classList.remove('hidden');
+                    const establishments = district.querySelectorAll('.establishment');
+                    establishments.forEach(e => e.classList.remove('hidden'));
+                    visibleCount += establishments.length;
+                });
+                noResults.classList.add('hidden');
+                document.getElementById('visibleCount').textContent = visibleCount;
+                return;
+            }
+            
+            districts.forEach(district => {
+                const establishments = district.querySelectorAll('.establishment');
+                let districtHasVisible = false;
+                
+                establishments.forEach(estab => {
+                    const name = estab.dataset.name;
+                    const address = estab.dataset.address;
+                    const area = estab.dataset.area;
+                    
+                    if (name.includes(lowerQuery) || address.includes(lowerQuery) || area.includes(lowerQuery)) {
+                        estab.classList.remove('hidden');
+                        districtHasVisible = true;
+                        visibleCount++;
+                    } else {
+                        estab.classList.add('hidden');
+                    }
+                });
+                
+                if (districtHasVisible) {
+                    district.classList.remove('hidden');
+                    district.classList.add('expanded');
+                    district.classList.remove('collapsed');
+                } else {
+                    district.classList.add('hidden');
+                }
+            });
+            
+            if (visibleCount === 0) {
+                noResults.classList.remove('hidden');
+            } else {
+                noResults.classList.add('hidden');
+            }
+            
+            document.getElementById('visibleCount').textContent = visibleCount;
+        }
+
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            performSearch(e.target.value);
+        });
+
+        document.getElementById('expandAllBtn').addEventListener('click', function() {
+            const districts = document.querySelectorAll('.district');
+            allExpanded = !allExpanded;
+            
+            districts.forEach(district => {
+                if (allExpanded) {
+                    district.classList.add('expanded');
+                    district.classList.remove('collapsed');
+                } else {
+                    district.classList.remove('expanded');
+                    district.classList.add('collapsed');
+                }
+            });
+            
+            this.textContent = allExpanded ? 'Col·lapsar tots els districtes' : 'Expandir tots els districtes';
+        });
+
+        // Initialize
+        renderEstablishments();
+    </script>
+</body>
+</html>
